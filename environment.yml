@@ -1,0 +1,12 @@
+name: ml-environment
+dependencies:
+  - python=3.8
+  - pip
+  - scikit-learn
+  - pandas
+  - numpy
+  - pip:
+      - mlflow
+      - azure-ai-ml
+      - azure-identity
+      - joblib

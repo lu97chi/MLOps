@@ -4,9 +4,9 @@ name: First Cron Job
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow at 10:42 PM every day
+  # Triggers the workflow at 10:42 PM CST (4:42 AM UTC the next day)
   schedule:
-    - cron: "54 16 * * *" 
+    - cron: "58 4 * * *" 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

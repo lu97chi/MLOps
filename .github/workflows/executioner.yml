@@ -6,7 +6,7 @@ name: First Cron Job
 on:
   # Triggers the workflow at 10:42 PM every day
   schedule:
-    - cron: "0 22 44 * *"
+    - cron: "44 22 * * *"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:

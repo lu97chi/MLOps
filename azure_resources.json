@@ -4,44 +4,34 @@
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]",
+      "defaultValue": "eastus",
       "metadata": {
-        "description": "Location for all resources."
-      }
-    },
-    "workspaceName": {
-      "type": "string",
-      "defaultValue": "ml-workspace",
-      "metadata": {
-        "description": "Name of the Azure ML Workspace."
+        "description": "Azure region for all resources."
       }
     },
     "keyVaultName": {
       "type": "string",
-      "defaultValue": "[concat('kv-', uniqueString(resourceGroup().id))]",
       "metadata": {
-        "description": "Name of the Key Vault."
+        "description": "Name of the Azure Key Vault."
+      }
+    },
+    "mlWorkspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Machine Learning Workspace."
       }
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]",
       "metadata": {
-        "description": "Name of the Storage Account."
-      }
-    },
-    "containerRegistryName": {
-      "type": "string",
-      "defaultValue": "[concat('acr', uniqueString(resourceGroup().id))]",
-      "metadata": {
-        "description": "Name of the Container Registry."
+        "description": "Name of the Azure Storage Account."
       }
     }
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-09-01",
+      "apiVersion": "2015-05-01-preview",
       "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -52,90 +42,41 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2021-06-01-preview",
+      "apiVersion": "2022-07-01",
       "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "tenantId": "[subscription().tenantId]",
         "sku": {
           "family": "A",
           "name": "standard"
         },
-        "accessPolicies": [],
-        "enabledForDeployment": true,
-        "enabledForDiskEncryption": false,
-        "enabledForTemplateDeployment": true
-      }
-    },
-    {
-      "type": "Microsoft.ContainerRegistry/registries",
-      "apiVersion": "2021-12-01-preview",
-      "name": "[parameters('containerRegistryName')]",
-      "location": "[parameters('location')]",
-      "sku": {
-        "name": "Basic"
-      },
-      "properties": {
-        "adminUserEnabled": true
-      }
-    },
-    {
-      "type": "Microsoft.Insights/components",
-      "apiVersion": "2020-02-02",
-      "name": "[concat(parameters('workspaceName'), '-insights')]",
-      "location": "[parameters('location')]",
-      "kind": "web",
-      "properties": {
-        "Application_Type": "web"
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": []
       }
     },
     {
       "type": "Microsoft.MachineLearningServices/workspaces",
-      "apiVersion": "2022-02-01-preview",
-      "name": "[parameters('workspaceName')]",
+      "apiVersion": "2022-05-01",
+      "name": "[parameters('mlWorkspaceName')]",
       "location": "[parameters('location')]",
-      "identity": {
-        "type": "SystemAssigned"
-      },
-      "sku": {
-        "name": "Basic",
-        "tier": "Basic"
-      },
       "properties": {
-        "description": "Azure ML Workspace",
-        "friendlyName": "[parameters('workspaceName')]",
-        "keyVault": {
-          "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-        },
-        "storageAccount": {
-          "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-        },
-        "containerRegistry": {
-          "id": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
-        },
-        "applicationInsights": {
-          "id": "[resourceId('Microsoft.Insights/components', concat(parameters('workspaceName'), '-insights'))]"
-        },
-        "publicNetworkAccess": "Enabled"
+        "friendlyName": "[parameters('mlWorkspaceName')]",
+        "description": "MLOps Proof of Concept Workspace"
       }
     }
   ],
   "outputs": {
-    "workspaceId": {
+    "storageAccountId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('workspaceName'))]"
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
     },
     "keyVaultId": {
       "type": "string",
       "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
     },
-    "storageAccountId": {
+    "mlWorkspaceId": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-    },
-    "containerRegistryId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('containerRegistryName'))]"
+      "value": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('mlWorkspaceName'))]"
     }
   }
 }

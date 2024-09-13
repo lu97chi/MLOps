@@ -1,38 +1,47 @@
-name: Deploy Azure Resources
+name: Azure Infrastructure Deployment
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-
-permissions:
-  id-token: write  # Required for OIDC authentication
-  contents: read   # Allows the workflow to read repository contents
 
 jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Azure Login
+      - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        
-      - name: List Files in Directory
-        run: ls -R  # Lists all files to help verify file locations
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy ARM Template using Azure CLI
+      - name: Deploy Azure Resources
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionId }}
+          resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          template: ./azure_resources.json
+          parameters: >
+            {
+              "location": {
+                "value": "eastus"
+              },
+              "keyVaultName": {
+                "value": "mlops-keyvault"
+              },
+              "mlWorkspaceName": {
+                "value": "mlops-workspace"
+              },
+              "storageAccountName": {
+                "value": "mlopsstorage-MLOPS_TEST"
+              }
+            }
+
+      - name: Assign Roles to Service Principal
         run: |
-          az deployment group create \
-            --name "azure-resources-deployment" \
-            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-            --template-file azure_resources.json \
-            --parameters \
-                location="${{ secrets.AZURE_LOCATION }}" \
-                workspaceName="${{ secrets.AZURE_WORKSPACE_NAME }}" \
-                keyVaultName="${{ secrets.AZURE_KEYVAULT_NAME }}" \
-                storageAccountName="${{ secrets.STORAGE_ACCOUNT_NAME }}" \
-                containerRegistryName="${{ secrets.CONTAINER_REGISTRY_NAME }}"
+          az role assignment create --assignee ${{ secrets.AZURE_CREDENTIALS.clientId }} --role "Contributor" --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+

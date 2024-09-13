@@ -29,7 +29,7 @@ jobs:
           az deployment group create \
             --name "azure-resources-deployment" \
             --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
-            --template-file azure_resources.yml \
+            --template-file azure_resources.json \
             --parameters \
                 location="${{ secrets.AZURE_LOCATION }}" \
                 workspaceName="${{ secrets.AZURE_WORKSPACE_NAME }}" \

@@ -1,0 +1,14 @@
+{
+  "location": {
+    "value": "centralus"
+  },
+  "keyVaultName": {
+    "value": "mlops-keyvault"
+  },
+  "mlWorkspaceName": {
+    "value": "mlops-workspace"
+  },
+  "storageAccountName": {
+    "value": "mlopsstorage12345"
+  }
+}

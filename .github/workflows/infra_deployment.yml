@@ -28,22 +28,8 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          template: ./azure_resources.json
-          parameters: |
-            {
-              "location": {
-                "value": "centralus"
-              },
-              "keyVaultName": {
-                "value": "mlops-keyvault"
-              },
-              "mlWorkspaceName": {
-                "value": "mlops-workspace"
-              },
-              "storageAccountName": {
-                "value": "mlopsstorage${{ github.run_id }}"
-              }
-            }
+          template: ./azure_resources.json  # Path to your ARM template file
+          parameters: '@parameters.json' 
 
       - name: Assign Roles to Service Principal
         run: |

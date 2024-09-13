@@ -1,0 +1,7 @@
+name: training-environment
+dependencies:
+  - python=3.9
+  - pip:
+    - scikit-learn
+    - pandas
+    - joblib

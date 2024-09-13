@@ -1,0 +1,34 @@
+name: Deploy Azure Resources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+          with:
+            client-id: ${{ env.AZURE_CLIENT_ID }}
+            tenant-id: ${{ env.AZURE_TENANT_ID }}
+            subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+            
+      - name: Set up Azure CLI
+        uses: azure/CLI@v1
+
+      - name: Deploy ARM Template
+        run: |
+          az deployment group create \
+            --name "azure-resources-deployment" \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --template-file azure_resources.yml \
+            --parameters \
+                location="${{ secrets.AZURE_LOCATION }}" \
+                workspaceName="${{ secrets.AZURE_WORKSPACE_NAME }}" \
+                keyVaultName="${{ secrets.AZURE_KEYVAULT_NAME }}" \
+                storageAccountName="${{ secrets.STORAGE_ACCOUNT_NAME }}" \
+                containerRegistryName="${{ secrets.CONTAINER_REGISTRY_NAME }}"

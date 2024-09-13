@@ -75,7 +75,8 @@ jobs:
           AZURE_RESOURCE_GROUP: ${{ steps.get_secrets.outputs.AZURE_RESOURCE_GROUP }}
           AZURE_WORKSPACE_NAME: ${{ steps.get_secrets.outputs.AZURE_WORKSPACE_NAME }}
         run: python run_training_job.py
-            - name: Install Snowpark
+        
+      - name: Install Snowpark
         run: pip install snowflake-snowpark-python
 
       - name: Deploy model to Snowflake

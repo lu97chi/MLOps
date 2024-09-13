@@ -51,6 +51,7 @@
           "name": "standard"
         },
         "tenantId": "[subscription().tenantId]",
+        "enableRbacAuthorization": true,
         "accessPolicies": []
       }
     },

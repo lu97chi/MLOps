@@ -3,12 +3,12 @@
     "value": "centralus"
   },
   "keyVaultName": {
-    "value": "mlops-keyvault-test1"
+    "value": "mlops-keyvaulttest2"
   },
   "mlWorkspaceName": {
-    "value": "mlops-workspace-test1"
+    "value": "mlops-workspacetest2"
   },
   "storageAccountName": {
-    "value": "mlopsstorage12345-test1"
+    "value": "mlopsstoragetest2"
   }
 }

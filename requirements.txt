@@ -1,7 +1,0 @@
-mlflow
-scikit-learn
-pandas
-numpy
-azure-ai-ml
-azure-identity
-joblib

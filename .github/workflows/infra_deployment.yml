@@ -17,12 +17,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy Azure Resources
         uses: azure/arm-deploy@v1
         with:
-          subscriptionId: ${{ secrets.AZURE_CREDENTIALS.subscriptionId }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RESOURCE_GROUP }}
           template: ./azure_resources.json
           parameters: >
@@ -37,11 +40,10 @@ jobs:
                 "value": "mlops-workspace"
               },
               "storageAccountName": {
-                "value": "mlopsstorage-MLOPS_TEST"
+                "value": "mlopsstorage<unique-suffix>"
               }
             }
 
       - name: Assign Roles to Service Principal
         run: |
-          az role assignment create --assignee ${{ secrets.AZURE_CREDENTIALS.clientId }} --role "Contributor" --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
-
+          az role assignment create --assignee ${{ secrets.AZURE_CLIENT_ID }} --role "Contributor" --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}

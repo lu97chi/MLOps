@@ -10,5 +10,8 @@
   },
   "storageAccountName": {
     "value": "mlopsstoragetest2"
+  },
+  "applicationInsightsName": {
+    "value": "mlopsappinsightstest2"
   }
 }

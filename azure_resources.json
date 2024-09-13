@@ -26,6 +26,12 @@
       "metadata": {
         "description": "Name of the Azure Storage Account."
       }
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Application Insights resource."
+      }
     }
   },
   "resources": [
@@ -56,6 +62,16 @@
       }
     },
     {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[parameters('applicationInsightsName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
+      }
+    },
+    {
       "type": "Microsoft.MachineLearningServices/workspaces",
       "apiVersion": "2023-04-01",
       "name": "[parameters('mlWorkspaceName')]",
@@ -65,8 +81,24 @@
       },
       "properties": {
         "friendlyName": "[parameters('mlWorkspaceName')]",
-        "description": "MLOps Proof of Concept Workspace"
-      }
+        "description": "MLOps Proof of Concept Workspace",
+        "storageAccount": {
+          "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+        },
+        "keyVault": {
+          "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+        },
+        "applicationInsights": {
+          "id": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+        },
+        "publicNetworkAccess": "Enabled",
+        "containerRegistry": null
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+      ]
     }
   ],
   "outputs": {
@@ -77,6 +109,10 @@
     "keyVaultId": {
       "type": "string",
       "value": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+    },
+    "applicationInsightsId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
     },
     "mlWorkspaceId": {
       "type": "string",

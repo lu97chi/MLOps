@@ -21,10 +21,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set up Azure CLI
-        uses: azure/CLI@v1
-
-      - name: Deploy ARM Template
+      - name: Deploy ARM Template using Azure CLI
         run: |
           az deployment group create \
             --name "azure-resources-deployment" \

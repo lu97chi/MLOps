@@ -3,6 +3,10 @@ name: Deploy Azure Resources
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write  # Required for OIDC authentication
+  contents: read   # Allows the workflow to read repository contents
+
 jobs:
   deploy-infrastructure:
     runs-on: ubuntu-latest
@@ -16,8 +20,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          auth-type: SERVICE_PRINCIPAL
-          
+
       - name: Set up Azure CLI
         uses: azure/CLI@v1
 

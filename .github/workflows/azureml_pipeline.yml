@@ -30,16 +30,17 @@ jobs:
         id: read_parameters
         shell: bash
         run: |
-          python -c "
+          python -c '
           import json
-          with open('parameters.json') as f:
+          with open("parameters.json") as f:
               params = json.load(f)
-          with open('${{ github.env }}', 'a') as env_file:
-          env_file.write(f'AZURE_KEY_VAULT={params["keyVaultName"]["value"]}\\n')
-          env_file.write(f'AZURE_WORKSPACE_NAME={params["mlWorkspaceName"]["value"]}\\n')
-          env_file.write(f'STORAGE_ACCOUNT_NAME={params["storageAccountName"]["value"]}\\n')
-          env_file.write(f'APPLICATION_INSIGHTS_NAME={params["applicationInsightsName"]["value"]}\\n')
-          env_file.write(f'LOCATION={params["location"]["value"]}\\n')"
+          with open("${{ github.env }}", "a") as env_file:
+              env_file.write(f"AZURE_KEY_VAULT={params["keyVaultName"]["value"]}\n")
+              env_file.write(f"AZURE_WORKSPACE_NAME={params["mlWorkspaceName"]["value"]}\n")
+              env_file.write(f"STORAGE_ACCOUNT_NAME={params["storageAccountName"]["value"]}\n")
+              env_file.write(f"APPLICATION_INSIGHTS_NAME={params["applicationInsightsName"]["value"]}\n")
+              env_file.write(f"LOCATION={params["location"]["value"]}\n")'
+
 
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1

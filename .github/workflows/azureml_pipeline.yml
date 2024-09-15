@@ -21,6 +21,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      
+      - name: Install jq
+        run: sudo apt-get install -y jq
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -59,9 +62,15 @@ jobs:
       - name: Retrieve secrets from Azure Key Vault using Azure CLI
         id: get_secrets
         shell: bash
+        env:
+          AZURE_KEY_VAULT: ${{ env.AZURE_KEY_VAULT }}
         run: |
+          set -e  # Exit on error
+          set -x  # Enable script debugging
+          echo "AZURE_KEY_VAULT is: $AZURE_KEY_VAULT"
           SECRETS=("SNOWFLAKEUSER" "SNOWFLAKEPASSWORD" "SNOWFLAKEACCOUNT" "SNOWFLAKEWAREHOUSE" "SNOWFLAKEDATABASE" "SNOWFLAKESCHEMA" "SNOWFLAKEROLE")
           for SECRET_NAME in "${SECRETS[@]}"; do
+            echo "Retrieving secret: $SECRET_NAME"
             SECRET_VALUE=$(az keyvault secret show --vault-name "$AZURE_KEY_VAULT" --name "$SECRET_NAME" --query "value" -o tsv)
             if [ -z "$SECRET_VALUE" ]; then
               echo "Error: Could not retrieve secret $SECRET_NAME"
@@ -69,6 +78,7 @@ jobs:
             fi
             # Export the secret as an environment variable
             echo "$SECRET_NAME=$SECRET_VALUE" >> $GITHUB_ENV
+            echo "Retrieved and set $SECRET_NAME"
           done
 
 

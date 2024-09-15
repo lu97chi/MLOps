@@ -63,22 +63,22 @@ jobs:
         with:
           keyvault: ${{ env.AZURE_KEY_VAULT }}
           secrets: |
-            SNOWFLAKE-USER
-            SNOWFLAKE-PASSWORD
-            SNOWFLAKE-ACCOUNT
-            SNOWFLAKE-WAREHOUSE
-            SNOWFLAKE-DATABASE
-            SNOWFLAKE-SCHEMA
-            SNOWFLAKE-ROLE
+            SNOWFLAKEUSER
+            SNOWFLAKEPASSWORD
+            SNOWFLAKEACCOUNT
+            SNOWFLAKEWAREHOUSE
+            SNOWFLAKEDATABASE
+            SNOWFLAKESCHEMA
+            SNOWFLAKEROLE
 
       - name: Extract data from Snowflake
         env:
-          SNOWFLAKE-USER: ${{ steps.get_secrets.outputs.SNOWFLAKE-USER }}
-          SNOWFLAKE-PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE-PASSWORD }}
-          SNOWFLAKE-ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE-ACCOUNT }}
-          SNOWFLAKE-WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE-WAREHOUSE }}
-          SNOWFLAKE-DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE-DATABASE }}
-          SNOWFLAKE-SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE-SCHEMA }}
+          SNOWFLAKEUSER: ${{ steps.get_secrets.outputs.SNOWFLAKEUSER }}
+          SNOWFLAKEPASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKEPASSWORD }}
+          SNOWFLAKEACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKEACCOUNT }}
+          SNOWFLAKEWAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKEWAREHOUSE }}
+          SNOWFLAKEDATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKEDATABASE }}
+          SNOWFLAKESCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKESCHEMA }}
         run: python data_extraction.py
 
       - name: Run training job on Azure ML
@@ -92,11 +92,11 @@ jobs:
 
       - name: Deploy model to Snowflake
         env:
-          SNOWFLAKE-USER: ${{ steps.get_secrets.outputs.SNOWFLAKE-USER }}
-          SNOWFLAKE-PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE-PASSWORD }}
-          SNOWFLAKE-ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE-ACCOUNT }}
-          SNOWFLAKE-WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE-WAREHOUSE }}
-          SNOWFLAKE-DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE-DATABASE }}
-          SNOWFLAKE-SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE-SCHEMA }}
-          SNOWFLAKE-ROLE: ${{ steps.get_secrets.outputs.SNOWFLAKE-ROLE }}
+          SNOWFLAKEUSER: ${{ steps.get_secrets.outputs.SNOWFLAKEUSER }}
+          SNOWFLAKEPASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKEPASSWORD }}
+          SNOWFLAKEACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKEACCOUNT }}
+          SNOWFLAKEWAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKEWAREHOUSE }}
+          SNOWFLAKEDATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKEDATABASE }}
+          SNOWFLAKESCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKESCHEMA }}
+          SNOWFLAKEROLE: ${{ steps.get_secrets.outputs.SNOWFLAKEROLE }}
         run: python deploy_udf.py

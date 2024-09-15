@@ -56,20 +56,21 @@ jobs:
         run: |
           pip install snowflake-connector-python pandas azure-ai-ml snowflake-snowpark-python
 
-      # Retrieve secrets from Azure Key Vault using the name from parameters.json
-      - name: Get Secrets from Azure Key Vault
+      - name: Retrieve secrets from Azure Key Vault using Azure CLI
         id: get_secrets
-        uses: azure/get-keyvault-secrets@v1
-        with:
-          keyvault: ${{ env.AZURE_KEY_VAULT }}
-          secrets: |
-            SNOWFLAKEUSER
-            SNOWFLAKEPASSWORD
-            SNOWFLAKEACCOUNT
-            SNOWFLAKEWAREHOUSE
-            SNOWFLAKEDATABASE
-            SNOWFLAKESCHEMA
-            SNOWFLAKEROLE
+        shell: bash
+        run: |
+          SECRETS=("SNOWFLAKEUSER" "SNOWFLAKEPASSWORD" "SNOWFLAKEACCOUNT" "SNOWFLAKEWAREHOUSE" "SNOWFLAKEDATABASE" "SNOWFLAKESCHEMA" "SNOWFLAKEROLE")
+          for SECRET_NAME in "${SECRETS[@]}"; do
+            SECRET_VALUE=$(az keyvault secret show --vault-name "$AZURE_KEY_VAULT" --name "$SECRET_NAME" --query "value" -o tsv)
+            if [ -z "$SECRET_VALUE" ]; then
+              echo "Error: Could not retrieve secret $SECRET_NAME"
+              exit 1
+            fi
+            # Export the secret as an environment variable
+            echo "$SECRET_NAME=$SECRET_VALUE" >> $GITHUB_ENV
+          done
+
 
       - name: Extract data from Snowflake
         env:

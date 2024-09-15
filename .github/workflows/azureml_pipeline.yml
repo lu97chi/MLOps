@@ -2,90 +2,97 @@ name: Automated Model Training and Deployment
 
 on:
   schedule:
-    - cron: '0 23 * * *'  # Runs at 23:00 UTC every day
+    - cron: "0 23 * * *" # Runs at 23:00 UTC every day
   workflow_dispatch:
 
 jobs:
   build:
-    needs: deploy-infrastructure
     runs-on: ubuntu-latest
     env:
-      AZURE_CLIENT_ID: '<Your Azure AD App Registration Application (client) ID>'
-      AZURE_TENANT_ID: '<Your Azure AD Tenant ID>'
-      AZURE_SUBSCRIPTION_ID: '<Your Azure Subscription ID>'
-      AZURE_KEY_VAULT: '<Your Key Vault Name>'
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+      LOCATION: ${{ secrets.LOCATION }}
+      # Other environment variables will be set from parameters.json
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-      
-      - name: Azure Login
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      # **New Step: Read parameters.json and set environment variables**
+      - name: Read parameters.json
+        id: read_parameters
+        shell: bash
+        run: |
+          python -c "
+          import json
+          with open('parameters.json') as f:
+              params = json.load(f)
+          with open('${{ github.env }}', 'a') as env_file:
+          env_file.write(f'AZURE_KEY_VAULT={params["keyVaultName"]["value"]}\\n')
+          env_file.write(f'AZURE_WORKSPACE_NAME={params["mlWorkspaceName"]["value"]}\\n')
+          env_file.write(f'STORAGE_ACCOUNT_NAME={params["storageAccountName"]["value"]}\\n')
+          env_file.write(f'APPLICATION_INSIGHTS_NAME={params["applicationInsightsName"]["value"]}\\n')
+          env_file.write(f'LOCATION={params["location"]["value"]}\\n')"
+
+      - name: Azure Login using OpenID Connect
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Install dependencies
+        run: |
+          pip install snowflake-connector-python pandas azure-ai-ml snowflake-snowpark-python
+
+      # Retrieve secrets from Azure Key Vault using the name from parameters.json
       - name: Get Secrets from Azure Key Vault
         id: get_secrets
         uses: azure/get-keyvault-secrets@v1
         with:
           keyvault: ${{ env.AZURE_KEY_VAULT }}
           secrets: |
-            SNOWFLAKE_USER
-            SNOWFLAKE_PASSWORD
-            SNOWFLAKE_ACCOUNT
-            SNOWFLAKE_WAREHOUSE
-            SNOWFLAKE_DATABASE
-            SNOWFLAKE_SCHEMA
-            SNOWFLAKE_ROLE
-            AZURE_CLIENT_ID
-            AZURE_CLIENT_SECRET
-            AZURE_TENANT_ID
-            AZURE_SUBSCRIPTION_ID
-            AZURE_RESOURCE_GROUP
-            AZURE_WORKSPACE_NAME
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-
-      - name: Install dependencies
-        run: |
-          pip install snowflake-connector-python pandas
+            SNOWFLAKE-USER
+            SNOWFLAKE-PASSWORD
+            SNOWFLAKE-ACCOUNT
+            SNOWFLAKE-WAREHOUSE
+            SNOWFLAKE-DATABASE
+            SNOWFLAKE-SCHEMA
+            SNOWFLAKE-ROLE
 
       - name: Extract data from Snowflake
         env:
-          SNOWFLAKE_USER: ${{ steps.get_secrets.outputs.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE_DATABASE }}
-          SNOWFLAKE_SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE_SCHEMA }}
+          SNOWFLAKE-USER: ${{ steps.get_secrets.outputs.SNOWFLAKE-USER }}
+          SNOWFLAKE-PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE-PASSWORD }}
+          SNOWFLAKE-ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE-ACCOUNT }}
+          SNOWFLAKE-WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE-WAREHOUSE }}
+          SNOWFLAKE-DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE-DATABASE }}
+          SNOWFLAKE-SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE-SCHEMA }}
         run: python data_extraction.py
-
-      - name: Install Azure ML SDK
-        run: pip install azure-ai-ml
 
       - name: Run training job on Azure ML
         env:
-          AZURE_CLIENT_ID: ${{ steps.get_secrets.outputs.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ steps.get_secrets.outputs.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ steps.get_secrets.outputs.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ steps.get_secrets.outputs.AZURE_SUBSCRIPTION_ID }}
-          AZURE_RESOURCE_GROUP: ${{ steps.get_secrets.outputs.AZURE_RESOURCE_GROUP }}
-          AZURE_WORKSPACE_NAME: ${{ steps.get_secrets.outputs.AZURE_WORKSPACE_NAME }}
+          AZURE_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
+          AZURE_WORKSPACE_NAME: ${{ env.AZURE_WORKSPACE_NAME }}
         run: python run_training_job.py
-        
-      - name: Install Snowpark
-        run: pip install snowflake-snowpark-python
 
       - name: Deploy model to Snowflake
         env:
-          SNOWFLAKE_USER: ${{ steps.get_secrets.outputs.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE_DATABASE }}
-          SNOWFLAKE_SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE_SCHEMA }}
-          SNOWFLAKE_ROLE: ${{ steps.get_secrets.outputs.SNOWFLAKE_ROLE }}
+          SNOWFLAKE-USER: ${{ steps.get_secrets.outputs.SNOWFLAKE-USER }}
+          SNOWFLAKE-PASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKE-PASSWORD }}
+          SNOWFLAKE-ACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKE-ACCOUNT }}
+          SNOWFLAKE-WAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKE-WAREHOUSE }}
+          SNOWFLAKE-DATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKE-DATABASE }}
+          SNOWFLAKE-SCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKE-SCHEMA }}
+          SNOWFLAKE-ROLE: ${{ steps.get_secrets.outputs.SNOWFLAKE-ROLE }}
         run: python deploy_udf.py

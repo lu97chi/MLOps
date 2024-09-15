@@ -6,13 +6,13 @@ import pandas as pd
 
 # Snowflake connection parameters
 connection_parameters = {
-    'account': os.getenv('SNOWFLAKE_ACCOUNT'),
-    'user': os.getenv('SNOWFLAKE_USER'),
-    'password': os.getenv('SNOWFLAKE_PASSWORD'),
-    'role': os.getenv('SNOWFLAKE_ROLE'),
-    'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
-    'database': os.getenv('SNOWFLAKE_DATABASE'),
-    'schema': os.getenv('SNOWFLAKE_SCHEMA')
+    'account': os.getenv('SNOWFLAKEACCOUNT'),
+    'user': os.getenv('SNOWFLAKEUSER'),
+    'password': os.getenv('SNOWFLAKEPASSWORD'),
+    'role': os.getenv('SNOWFLAKEROLE'),
+    'warehouse': os.getenv('SNOWFLAKEWAREHOUSE'),
+    'database': os.getenv('SNOWFLAKEDATABASE'),
+    'schema': os.getenv('SNOWFLAKESCHEMA')
 }
 
 session = Session.builder.configs(connection_parameters).create()

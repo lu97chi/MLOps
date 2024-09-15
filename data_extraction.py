@@ -4,12 +4,12 @@ import pandas as pd
 
 # Fetch credentials from environment variables
 conn = snowflake.connector.connect(
-    user=os.getenv('SNOWFLAKE_USER'),
-    password=os.getenv('SNOWFLAKE_PASSWORD'),
-    account=os.getenv('SNOWFLAKE_ACCOUNT'),
-    warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
-    database=os.getenv('SNOWFLAKE_DATABASE'),
-    schema=os.getenv('SNOWFLAKE_SCHEMA')
+    user=os.getenv('SNOWFLAKEUSER'),
+    password=os.getenv('SNOWFLAKEPASSWORD'),
+    account=os.getenv('SNOWFLAKEACCOUNT'),
+    warehouse=os.getenv('SNOWFLAKEWAREHOUSE'),
+    database=os.getenv('SNOWFLAKEDATABASE'),
+    schema=os.getenv('SNOWFLAKESCHEMA')
 )
 
 # Execute query

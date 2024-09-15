@@ -30,9 +30,9 @@ jobs:
         with:
           python-version: "3.9"
 
-      # **New Step: Read parameters.json and set environment variables**
       - name: Read parameters.json
         id: read_parameters
+        shell: bash
         run: |
           KEY_VAULT=$(jq -r '.keyVaultName.value' parameters.json)
           WORKSPACE_NAME=$(jq -r '.mlWorkspaceName.value' parameters.json)
@@ -45,7 +45,6 @@ jobs:
           echo "STORAGE_ACCOUNT_NAME=$STORAGE_NAME" >> $GITHUB_ENV
           echo "APPLICATION_INSIGHTS_NAME=$INSIGHTS_NAME" >> $GITHUB_ENV
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
-        shell: bash
 
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1
@@ -66,11 +65,8 @@ jobs:
           AZURE_KEY_VAULT: ${{ env.AZURE_KEY_VAULT }}
         run: |
           set -e  # Exit on error
-          set -x  # Enable script debugging
-          echo "AZURE_KEY_VAULT is: $AZURE_KEY_VAULT"
           SECRETS=("SNOWFLAKEUSER" "SNOWFLAKEPASSWORD" "SNOWFLAKEACCOUNT" "SNOWFLAKEWAREHOUSE" "SNOWFLAKEDATABASE" "SNOWFLAKESCHEMA" "SNOWFLAKEROLE")
           for SECRET_NAME in "${SECRETS[@]}"; do
-            echo "Retrieving secret: $SECRET_NAME"
             SECRET_VALUE=$(az keyvault secret show --vault-name "$AZURE_KEY_VAULT" --name "$SECRET_NAME" --query "value" -o tsv)
             if [ -z "$SECRET_VALUE" ]; then
               echo "Error: Could not retrieve secret $SECRET_NAME"
@@ -78,7 +74,6 @@ jobs:
             fi
             # Export the secret as an environment variable
             echo "$SECRET_NAME=$SECRET_VALUE" >> $GITHUB_ENV
-            echo "Retrieved and set $SECRET_NAME"
           done
 
       - name: Extract data from Snowflake

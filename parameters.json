@@ -3,7 +3,7 @@
     "value": "centralus"
   },
   "keyVaultName": {
-    "value": "mlops-keyvaulttest4 "
+    "value": "mlops-keyvaulttest4"
   },
   "mlWorkspaceName": {
     "value": "mlops-workspacetest4"

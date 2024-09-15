@@ -28,19 +28,19 @@ jobs:
       # **New Step: Read parameters.json and set environment variables**
       - name: Read parameters.json
         id: read_parameters
-        shell: bash
         run: |
-          python -c '
-          import json
-          with open("parameters.json") as f:
-              params = json.load(f)
-          with open("${{ github.env }}", "a") as env_file:
-              env_file.write(f"AZURE_KEY_VAULT={params["keyVaultName"]["value"]}\n")
-              env_file.write(f"AZURE_WORKSPACE_NAME={params["mlWorkspaceName"]["value"]}\n")
-              env_file.write(f"STORAGE_ACCOUNT_NAME={params["storageAccountName"]["value"]}\n")
-              env_file.write(f"APPLICATION_INSIGHTS_NAME={params["applicationInsightsName"]["value"]}\n")
-              env_file.write(f"LOCATION={params["location"]["value"]}\n")'
+          KEY_VAULT=$(jq -r '.keyVaultName.value' parameters.json)
+          WORKSPACE_NAME=$(jq -r '.mlWorkspaceName.value' parameters.json)
+          STORAGE_NAME=$(jq -r '.storageAccountName.value' parameters.json)
+          INSIGHTS_NAME=$(jq -r '.applicationInsightsName.value' parameters.json)
+          LOCATION=$(jq -r '.location.value' parameters.json)
 
+          echo "AZURE_KEY_VAULT=$KEY_VAULT" >> $GITHUB_ENV
+          echo "AZURE_WORKSPACE_NAME=$WORKSPACE_NAME" >> $GITHUB_ENV
+          echo "STORAGE_ACCOUNT_NAME=$STORAGE_NAME" >> $GITHUB_ENV
+          echo "APPLICATION_INSIGHTS_NAME=$INSIGHTS_NAME" >> $GITHUB_ENV
+          echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+        shell: bash
 
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1

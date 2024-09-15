@@ -77,13 +77,6 @@ jobs:
           done
 
       - name: Extract data from Snowflake
-        env:
-          SNOWFLAKEUSER: ${{ env.SNOWFLAKEUSER }}
-          SNOWFLAKEPASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
-          SNOWFLAKEACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
-          SNOWFLAKEWAREHOUSE: ${{ env.SNOWFLAKEWAREHOUSE }}
-          SNOWFLAKEDATABASE: ${{ env.SNOWFLAKEDATABASE }}
-          SNOWFLAKESCHEMA: ${{ env.SNOWFLAKESCHEMA }}
         run: python data_extraction.py
 
       - name: Run training job on Azure ML
@@ -96,11 +89,4 @@ jobs:
         run: python run_training_job.py
 
       - name: Deploy model to Snowflake
-        env:
-          SNOWFLAKEUSER: ${{ env.SNOWFLAKEUSER }}
-          SNOWFLAKEPASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
-          SNOWFLAKEACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
-          SNOWFLAKEWAREHOUSE: ${{ env.SNOWFLAKEWAREHOUSE }}
-          SNOWFLAKEDATABASE: ${{ env.SNOWFLAKEDATABASE }}
-          SNOWFLAKESCHEMA: ${{ env.SNOWFLAKESCHEMA }}
         run: python deploy_udf.py

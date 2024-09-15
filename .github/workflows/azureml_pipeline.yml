@@ -5,6 +5,10 @@ on:
     - cron: "0 23 * * *" # Runs at 23:00 UTC every day
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Install jq
         run: sudo apt-get install -y jq
 
@@ -81,15 +81,14 @@ jobs:
             echo "Retrieved and set $SECRET_NAME"
           done
 
-
       - name: Extract data from Snowflake
         env:
-          SNOWFLAKEUSER: ${{ steps.get_secrets.outputs.SNOWFLAKEUSER }}
-          SNOWFLAKEPASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKEPASSWORD }}
-          SNOWFLAKEACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKEACCOUNT }}
-          SNOWFLAKEWAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKEWAREHOUSE }}
-          SNOWFLAKEDATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKEDATABASE }}
-          SNOWFLAKESCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKESCHEMA }}
+          SNOWFLAKEUSER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKEPASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKEACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
+          SNOWFLAKEWAREHOUSE: ${{ env.SNOWFLAKEWAREHOUSE }}
+          SNOWFLAKEDATABASE: ${{ env.SNOWFLAKEDATABASE }}
+          SNOWFLAKESCHEMA: ${{ env.SNOWFLAKESCHEMA }}
         run: python data_extraction.py
 
       - name: Run training job on Azure ML
@@ -103,11 +102,10 @@ jobs:
 
       - name: Deploy model to Snowflake
         env:
-          SNOWFLAKEUSER: ${{ steps.get_secrets.outputs.SNOWFLAKEUSER }}
-          SNOWFLAKEPASSWORD: ${{ steps.get_secrets.outputs.SNOWFLAKEPASSWORD }}
-          SNOWFLAKEACCOUNT: ${{ steps.get_secrets.outputs.SNOWFLAKEACCOUNT }}
-          SNOWFLAKEWAREHOUSE: ${{ steps.get_secrets.outputs.SNOWFLAKEWAREHOUSE }}
-          SNOWFLAKEDATABASE: ${{ steps.get_secrets.outputs.SNOWFLAKEDATABASE }}
-          SNOWFLAKESCHEMA: ${{ steps.get_secrets.outputs.SNOWFLAKESCHEMA }}
-          SNOWFLAKEROLE: ${{ steps.get_secrets.outputs.SNOWFLAKEROLE }}
+          SNOWFLAKEUSER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKEPASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKEACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
+          SNOWFLAKEWAREHOUSE: ${{ env.SNOWFLAKEWAREHOUSE }}
+          SNOWFLAKEDATABASE: ${{ env.SNOWFLAKEDATABASE }}
+          SNOWFLAKESCHEMA: ${{ env.SNOWFLAKESCHEMA }}
         run: python deploy_udf.py

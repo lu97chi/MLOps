@@ -3,15 +3,15 @@
     "value": "centralus"
   },
   "keyVaultName": {
-    "value": "mlops-keyvaulttest2"
+    "value": "mlops-keyvaulttest4 "
   },
   "mlWorkspaceName": {
-    "value": "mlops-workspacetest2"
+    "value": "mlops-workspacetest4"
   },
   "storageAccountName": {
-    "value": "mlopsstoragetest2"
+    "value": "mlopsstoragetest4"
   },
   "applicationInsightsName": {
-    "value": "mlopsappinsightstest2"
+    "value": "mlopsappinsightstest4"
   }
 }

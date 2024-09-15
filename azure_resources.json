@@ -82,15 +82,9 @@
       "properties": {
         "friendlyName": "[parameters('mlWorkspaceName')]",
         "description": "MLOps Proof of Concept Workspace",
-        "storageAccount": {
-          "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
-        },
-        "keyVault": {
-          "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
-        },
-        "applicationInsights": {
-          "id": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
-        },
+        "storageAccount": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "keyVault": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "applicationInsights": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
         "publicNetworkAccess": "Enabled",
         "containerRegistry": null
       },

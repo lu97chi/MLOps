@@ -2,11 +2,11 @@ from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
 
-# Set up Azure ML credentials and client
+# Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
     tenant_id=os.getenv("AZURE_TENANT_ID"),
     client_id=os.getenv("AZURE_CLIENT_ID"),
-    client_secret=os.getenv("AZURE_CLIENT_SECRET")
+    client_secret=os.getenv("AZURECLIENTSECRET")
 )
 
 ml_client = MLClient(
@@ -16,13 +16,12 @@ ml_client = MLClient(
     workspace_name=os.getenv("AZURE_WORKSPACE_NAME")
 )
 
-# Fetch the registered model from Azure ML
-model_name = "model"  # The name used in the training script
-model_version = "1"  # Adjust if needed, or use None to fetch the latest
+# Retrieve the model by name or ID
+model_name = "RandomForestClassifierModel"  # Update with your actual model name
+model_version = "1"  # Update with your model version if necessary
 model = ml_client.models.get(name=model_name, version=model_version)
 
-# Download the model to a local path
-download_path = "./downloaded_model"
-ml_client.models.download(name=model.name, version=model.version, download_path=download_path)
-
+# Download the model locally
+download_path = "models/"
+model.download(download_path, exist_ok=True)
 print(f"Model downloaded to {download_path}")

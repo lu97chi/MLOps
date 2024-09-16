@@ -88,3 +88,27 @@ jobs:
           AZURE_WORKSPACE_NAME: ${{ env.AZURE_WORKSPACE_NAME }}
           AZURE_CLIENT_SECRET: ${{ env.AZURECLIENTSECRET }}
         run: python run_training_job.py
+
+      - name: Download Model from Azure ML
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_WORKSPACE_NAME: ${{ env.AZURE_WORKSPACE_NAME }}
+          AZURE_CLIENT_SECRET: ${{ env.AZURECLIENTSECRET }}
+        run: python download_model.py
+
+      - name: Upload Model to Snowflake
+        env:
+          SNOWFLAKE_USER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKE_PASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
+        run: python upload_model_to_snowflake.py
+
+      - name: Create Snowflake UDF for Inference
+        env:
+          SNOWFLAKE_USER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKE_PASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
+        run: python create_snowflake_udf.py

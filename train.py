@@ -62,17 +62,20 @@ with mlflow.start_run() as run:
     signature = infer_signature(X_train, model.predict(X_train))
 
     # Log model using MLflow
+    artifact_path = 'model'
     mlflow.sklearn.log_model(
         sk_model=model,
-        artifact_path='model',
+        artifact_path=artifact_path,
         input_example=input_example,
         signature=signature
     )
 
+    # Retrieve the model path from MLflow
+    model_uri = f"runs:/{run.info.run_id}/{artifact_path}"
+
     # Register the model directly with Azure ML
-    model_path = f"artifacts/model"  # Path where the model is logged by MLflow
     registered_model = AzureModel(
-        path=model_path,
+        path=model_uri,  # Using MLflow model URI
         name='RandomForestClassifierModel',  # Name of the model in Azure ML
         description="Random Forest model for predicting quality",
         tags={"framework": "sklearn", "accuracy": str(accuracy)}

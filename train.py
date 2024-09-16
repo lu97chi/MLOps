@@ -7,6 +7,7 @@ import mlflow.sklearn
 from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
+import logging
 
 # Set up basic logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

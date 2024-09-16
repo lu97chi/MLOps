@@ -8,3 +8,4 @@ dependencies:
       - joblib
       - azure-identity       # For Azure authentication (ClientSecretCredential)
       - azure-ai-ml          # For Azure ML SDK to interact with Azure Machine Learning
+      - azureml.mlflow

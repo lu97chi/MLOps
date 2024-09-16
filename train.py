@@ -7,7 +7,9 @@ import mlflow.sklearn
 from mlflow.models.signature import infer_signature
 from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
+from azure.ai.ml.entities import Model as AzureModel
 import os
+import azureml.mlflow  # Importing Azure ML's MLflow integration
 
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
@@ -59,13 +61,23 @@ with mlflow.start_run() as run:
     input_example = X_test.iloc[:1]  # Taking the first row as an example input
     signature = infer_signature(X_train, model.predict(X_train))
 
-    # Log model using MLflow with input example and signature
+    # Log model using MLflow
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path='model',
-        registered_model_name='RandomForestClassifierModel',  # Change the model name as needed
         input_example=input_example,
         signature=signature
     )
 
-print("Model logged and registered successfully in Azure ML with input example and signature.")
+    # Register the model directly with Azure ML
+    model_path = f"artifacts/model"  # Path where the model is logged by MLflow
+    registered_model = AzureModel(
+        path=model_path,
+        name='RandomForestClassifierModel',  # Name of the model in Azure ML
+        description="Random Forest model for predicting quality",
+        tags={"framework": "sklearn", "accuracy": str(accuracy)}
+    )
+    
+    ml_client.models.create_or_update(registered_model)
+
+print("Model logged and registered successfully in Azure ML.")

@@ -2,6 +2,9 @@ from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
 
+for key, value in os.environ.items():
+    print(f'{key}: {value}')
+    
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
     tenant_id=os.getenv("AZURE_TENANT_ID"),

@@ -2,6 +2,14 @@ import os
 from azure.ai.ml import command
 from azure.ai.ml.entities import Environment
 from azureml_config import ml_client
+import logging
+
+# Set up basic logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Log all environment variables
+for key, value in os.environ.items():
+    logging.info(f'{key}: {value}')
 
 # Define environment
 environment = Environment(

@@ -92,3 +92,19 @@ jobs:
           AZURE_WORKSPACE_NAME: ${{ env.AZURE_WORKSPACE_NAME }}
           AZURE_CLIENT_SECRET: ${{ env.AZURECLIENTSECRET }}
         run: python run_training_job.py
+
+  trigger_snowflake:
+    needs: build  # Run this job only after 'build' is successful
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Snowflake Deployment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'snowflake_deployment.yml',  # Ensure this matches the actual file name
+              ref: 'main'  # The branch where your Snowflake workflow exists
+            })

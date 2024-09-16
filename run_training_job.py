@@ -39,4 +39,6 @@ job = command(
 
 # Submit job to Azure ML
 returned_job = ml_client.jobs.create_or_update(job)
-print(f"Submitted job: {returned_job.name}")
+returned_job.wait_for_completion(show_output=True) 
+
+print(f"Submitted job: {returned_job.name} with status: {returned_job.status}")

@@ -8,6 +8,13 @@ from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
 
+# Set up basic logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Log all environment variables
+for key, value in os.environ.items():
+    logging.info(f'{key}: {value}')
+
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
     tenant_id=os.getenv("AZURE_TENANT_ID"),

@@ -65,7 +65,7 @@ jobs:
           AZURE_KEY_VAULT: ${{ env.AZURE_KEY_VAULT }}
         run: |
           set -e  # Exit on error
-          SECRETS=("AZURECLIENTSECRET")
+          SECRETS=("AZURECLIENTSECRET" "SNOWFLAKEUSER" "SNOWFLAKEPASSWORD" "SNOWFLAKEACCOUNT" "SNOWFLAKEWAREHOUSE" "SNOWFLAKEDATABASE" "SNOWFLAKESCHEMA" "SNOWFLAKEROLE")
           for SECRET_NAME in "${SECRETS[@]}"; do
             SECRET_VALUE=$(az keyvault secret show --vault-name "$AZURE_KEY_VAULT" --name "$SECRET_NAME" --query "value" -o tsv)
             if [ -z "$SECRET_VALUE" ]; then

@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install snowflake-connector-python pandas scikit-learn azure-ai-ml
+          pip install snowflake-connector-python pandas scikit-learn azure-ai-ml azure-identity
 
       - name: Read parameters.json
         id: read_parameters

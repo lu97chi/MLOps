@@ -32,6 +32,13 @@
       "metadata": {
         "description": "Name of the Application Insights resource."
       }
+    },
+    "computeClusterName": {
+      "type": "string",
+      "defaultValue": "cpu-cluster",
+      "metadata": {
+        "description": "Name of the Azure Machine Learning Compute Cluster."
+      }
     }
   },
   "resources": [
@@ -93,6 +100,24 @@
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
         "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
       ]
+    },
+    {
+      "type": "Microsoft.MachineLearningServices/workspaces/computes",
+      "apiVersion": "2023-04-01",
+      "name": "[format('{0}/{1}', parameters('mlWorkspaceName'), parameters('computeClusterName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "computeType": "AmlCompute",
+        "properties": {
+          "vmSize": "Standard_E4ds_v4", 
+          "minNodeCount": 0,
+          "maxNodeCount": 4,
+          "idleSecondsBeforeScaledown": 120
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('mlWorkspaceName'))]"
+      ]
     }
   ],
   "outputs": {
@@ -111,6 +136,10 @@
     "mlWorkspaceId": {
       "type": "string",
       "value": "[resourceId('Microsoft.MachineLearningServices/workspaces', parameters('mlWorkspaceName'))]"
+    },
+    "computeClusterId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.MachineLearningServices/workspaces/computes', parameters('mlWorkspaceName'), parameters('computeClusterName'))]"
     }
   }
 }

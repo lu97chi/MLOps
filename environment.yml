@@ -1,7 +1,8 @@
-name: training-environment
+name: training-env
 dependencies:
-  - python=3.9
+  - python=3.8
   - pip:
-    - scikit-learn
-    - pandas
-    - joblib
+      - mlflow
+      - scikit-learn
+      - pandas
+      - joblib

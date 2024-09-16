@@ -49,9 +49,9 @@ jobs:
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1
         with:
-          client-id: ${{ env.AZURE_CLIENT_ID }}
-          tenant-id: ${{ env.AZURE_TENANT_ID }}
-          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           allow-no-subscriptions: true
 
       - name: Install dependencies
@@ -81,9 +81,9 @@ jobs:
 
       - name: Run training job on Azure ML
         env:
-          AZURE_CLIENT_ID: ${{ env.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ env.AZURE_TENANT_ID }}
-          AZURE_SUBSCRIPTION_ID: ${{ env.AZURE_SUBSCRIPTION_ID }}
-          AZURE_RESOURCE_GROUP: ${{ env.AZURE_RESOURCE_GROUP }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           AZURE_WORKSPACE_NAME: ${{ env.AZURE_WORKSPACE_NAME }}
         run: python run_training_job.py

@@ -29,8 +29,10 @@ jobs:
         shell: bash
         run: |
           KEY_VAULT=$(jq -r '.keyVaultName.value' parameters.json)
+          WORKSPACE_NAME=$(jq -r '.mlWorkspaceName.value' parameters.json)
 
           echo "AZURE_KEY_VAULT=$KEY_VAULT" >> $GITHUB_ENV
+          echo "AZURE_WORKSPACE_NAME=$WORKSPACE_NAME" >> $GITHUB_ENV
             
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1

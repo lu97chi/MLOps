@@ -7,14 +7,6 @@ import mlflow.sklearn
 from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
-import logging
-
-# Set up basic logging configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Log all environment variables
-for key, value in os.environ.items():
-    logging.info(f'{key}: {value}')
 
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
@@ -30,11 +22,13 @@ ml_client = MLClient(
     workspace_name=os.getenv("AZURE_WORKSPACE_NAME")
 )
 
-# Set the tracking URI to Azure ML workspace
-mlflow.set_tracking_uri(ml_client.workspaces.get().mlflow_tracking_uri)
+# Get the tracking URI for MLflow from the Azure ML workspace
+workspace = ml_client.workspaces.get(name=os.getenv("AZURE_WORKSPACE_NAME"))
+mlflow.set_tracking_uri(workspace.mlflow_tracking_uri)
 
 # Set up MLflow experiment
-mlflow.set_experiment('training-experiment')
+experiment_name = 'training-experiment'
+mlflow.set_experiment(experiment_name)
 
 # Start an MLflow run
 with mlflow.start_run() as run:
@@ -60,9 +54,11 @@ with mlflow.start_run() as run:
     # Log metrics to MLflow
     mlflow.log_metric('accuracy', accuracy)
 
-    # Log model using Azure ML integration with MLflow
+    # Log model using MLflow
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path='model',
         registered_model_name='RandomForestClassifierModel'  # Change the model name as needed
     )
+
+print("Model logged and registered successfully in Azure ML.")

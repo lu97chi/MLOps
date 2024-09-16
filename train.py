@@ -4,10 +4,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import mlflow
 import mlflow.sklearn
-import joblib
 
-# Set up MLflow
-mlflow.set_experiment('training-experiment')  # Ensure this matches your Azure ML experiment name
+# Set up MLflow experiment (ensure this matches your Azure ML experiment name)
+mlflow.set_experiment('training-experiment')
 
 # Start an MLflow run
 with mlflow.start_run() as run:
@@ -30,11 +29,6 @@ with mlflow.start_run() as run:
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Model accuracy: {accuracy}')
 
-    # Log metrics to MLflow
+    # Log metrics and model to MLflow
     mlflow.log_metric('accuracy', accuracy)
-
-    # Log model to MLflow
     mlflow.sklearn.log_model(model, 'model')
-
-    # Optionally: Save model locally (though not needed for MLflow)
-    joblib.dump(model, 'model.joblib')

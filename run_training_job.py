@@ -11,7 +11,7 @@ environment = Environment(
 )
 
 # Fetch compute and experiment names from environment variables or hard-code them
-compute_name = os.getenv('COMPUTE_NAME', 'AmlTest')  # Default to 'AmlTest'
+compute_name = os.getenv('COMPUTE_NAME', 'AMLCompute2')  # Default to 'AmlTest'
 experiment_name = os.getenv('EXPERIMENT_NAME', 'training-experiment')  # Default to 'training-experiment'
 
 # Create command job

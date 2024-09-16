@@ -2,6 +2,14 @@ import os
 import snowflake.connector
 import pandas as pd
 
+print (os.environ.get('SNOWFLAKEUSER'))
+print (os.environ.get('SNOWFLAKEPASSWORD'))
+print (os.environ.get('SNOWFLAKEACCOUNT'))
+print (os.environ.get('SNOWFLAKEWAREHOUSE'))
+print (os.environ.get('SNOWFLAKEDATABASE'))
+print (os.environ.get('SNOWFLAKESCHEMA'))
+print (os.environ.get('SNOWFLAKEROLE')) 
+
 # Fetch credentials from environment variables
 conn = snowflake.connector.connect(
     user=os.environ.get('SNOWFLAKEUSER'),

@@ -109,7 +109,7 @@
       "properties": {
         "computeType": "AmlCompute",
         "properties": {
-          "vmSize": "Standard_E4ds_v4", 
+          "vmSize": "Standard_E4as_v4", 
           "minNodeCount": 0,
           "maxNodeCount": 4,
           "idleSecondsBeforeScaledown": 120

@@ -13,5 +13,11 @@
   },
   "applicationInsightsName": {
     "value": "mlopsappinsightstest1"
+  },
+  "computeName": {
+    "value": "AMLOPSTEST2"
+  },
+  "trainingExperiment": {
+    "value":  "training-experiment"
   }
 }

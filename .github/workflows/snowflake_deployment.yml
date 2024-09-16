@@ -10,10 +10,6 @@ permissions:
 jobs:
   snowflake_deployment:
     runs-on: ubuntu-latest
-    env:
-      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
 
     steps:
       - name: Checkout repository
@@ -27,6 +23,14 @@ jobs:
       - name: Install dependencies
         run: |
           pip install snowflake-connector-python pandas scikit-learn
+
+      - name: Read parameters.json
+        id: read_parameters
+        shell: bash
+        run: |
+          KEY_VAULT=$(jq -r '.keyVaultName.value' parameters.json)
+
+          echo "AZURE_KEY_VAULT=$KEY_VAULT" >> $GITHUB_ENV
       
       - name: Retrieve secrets from Azure Key Vault using Azure CLI
         id: get_secrets

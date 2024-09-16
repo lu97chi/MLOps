@@ -39,12 +39,16 @@ jobs:
           STORAGE_NAME=$(jq -r '.storageAccountName.value' parameters.json)
           INSIGHTS_NAME=$(jq -r '.applicationInsightsName.value' parameters.json)
           LOCATION=$(jq -r '.location.value' parameters.json)
+          COMPUTE_NAME=$(jq -r '.computeName.value' parameters.json)
+          EXPERIMENT_NAME=$(jq -r '.trainingExperiment.value' parameters.json)
 
           echo "AZURE_KEY_VAULT=$KEY_VAULT" >> $GITHUB_ENV
           echo "AZURE_WORKSPACE_NAME=$WORKSPACE_NAME" >> $GITHUB_ENV
           echo "STORAGE_ACCOUNT_NAME=$STORAGE_NAME" >> $GITHUB_ENV
           echo "APPLICATION_INSIGHTS_NAME=$INSIGHTS_NAME" >> $GITHUB_ENV
           echo "LOCATION=$LOCATION" >> $GITHUB_ENV
+          echo "COMPUTE_NAME=$COMPUTE_NAME" >> $GITHUB_ENV
+          echo "EXPERIMENT_NAME=$EXPERIMENT_NAME" >> $GITHUB_ENV
 
       - name: Azure Login using OpenID Connect
         uses: azure/login@v1

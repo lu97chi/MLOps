@@ -1,0 +1,62 @@
+name: Snowflake Model Deployment
+
+on:
+  workflow_dispatch:  # Allows the workflow to be triggered manually
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  snowflake_deployment:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          pip install snowflake-connector-python pandas scikit-learn
+      
+      - name: Retrieve secrets from Azure Key Vault using Azure CLI
+        id: get_secrets
+        shell: bash
+        env:
+          AZURE_KEY_VAULT: ${{ env.AZURE_KEY_VAULT }}
+        run: |
+          set -e  # Exit on error
+          SECRETS=("SNOWFLAKEUSER" "SNOWFLAKEPASSWORD" "SNOWFLAKEACCOUNT" "SNOWFLAKEWAREHOUSE" "SNOWFLAKEDATABASE" "SNOWFLAKESCHEMA" "SNOWFLAKEROLE")
+          for SECRET_NAME in "${SECRETS[@]}"; do
+            SECRET_VALUE=$(az keyvault secret show --vault-name "$AZURE_KEY_VAULT" --name "$SECRET_NAME" --query "value" -o tsv)
+            if [ -z "$SECRET_VALUE" ]; then
+              echo "Error: Could not retrieve secret $SECRET_NAME"
+              exit 1
+            fi
+            # Export the secret as an environment variable
+            echo "$SECRET_NAME=$SECRET_VALUE" >> $GITHUB_ENV
+          done
+
+
+      - name: Upload Model to Snowflake
+        run: python upload_model_to_snowflake.py
+        env:
+          SNOWFLAKE_USER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKE_PASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}
+
+      - name: Create Snowflake UDF for Inference
+        run: python create_snowflake_udf.py
+        env:
+          SNOWFLAKE_USER: ${{ env.SNOWFLAKEUSER }}
+          SNOWFLAKE_PASSWORD: ${{ env.SNOWFLAKEPASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ env.SNOWFLAKEACCOUNT }}

@@ -8,7 +8,6 @@ from mlflow.models.signature import infer_signature
 from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
-import azureml.mlflow  # Importing Azure ML's MLflow integration
 
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(

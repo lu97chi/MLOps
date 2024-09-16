@@ -4,8 +4,28 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import mlflow
 import mlflow.sklearn
+from azure.identity import ClientSecretCredential
+from azure.ai.ml import MLClient
+import os
 
-# Set up MLflow experiment (ensure this matches your Azure ML experiment name)
+# Set up Azure ML credentials and MLClient
+credential = ClientSecretCredential(
+    tenant_id=os.getenv("AZURE_TENANT_ID"),
+    client_id=os.getenv("AZURE_CLIENT_ID"),
+    client_secret=os.getenv("AZURE_CLIENT_SECRET")
+)
+
+ml_client = MLClient(
+    credential=credential,
+    subscription_id=os.getenv("AZURE_SUBSCRIPTION_ID"),
+    resource_group_name=os.getenv("AZURE_RESOURCE_GROUP"),
+    workspace_name=os.getenv("AZURE_WORKSPACE_NAME")
+)
+
+# Set the tracking URI to Azure ML workspace
+mlflow.set_tracking_uri(ml_client.workspaces.get().mlflow_tracking_uri)
+
+# Set up MLflow experiment
 mlflow.set_experiment('training-experiment')
 
 # Start an MLflow run
@@ -29,6 +49,12 @@ with mlflow.start_run() as run:
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Model accuracy: {accuracy}')
 
-    # Log metrics and model to MLflow
+    # Log metrics to MLflow
     mlflow.log_metric('accuracy', accuracy)
-    mlflow.sklearn.log_model(model, 'model')
+
+    # Log model using Azure ML integration with MLflow
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path='model',
+        registered_model_name='RandomForestClassifierModel'  # Change the model name as needed
+    )

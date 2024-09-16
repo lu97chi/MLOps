@@ -4,9 +4,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import mlflow
 import mlflow.sklearn
+from mlflow.models.signature import infer_signature
 from azure.identity import ClientSecretCredential
 from azure.ai.ml import MLClient
 import os
+import azureml.mlflow  # Importing Azure ML's MLflow integration
 
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
@@ -22,7 +24,7 @@ ml_client = MLClient(
     workspace_name=os.getenv("AZURE_WORKSPACE_NAME")
 )
 
-# Get the tracking URI for MLflow from the Azure ML workspace
+# Set the tracking URI to Azure ML workspace
 workspace = ml_client.workspaces.get(name=os.getenv("AZURE_WORKSPACE_NAME"))
 mlflow.set_tracking_uri(workspace.mlflow_tracking_uri)
 
@@ -36,14 +38,14 @@ with mlflow.start_run() as run:
     df = pd.read_csv('data.csv')
 
     # Data preprocessing
-    X = df.drop('target', axis=1)
-    y = df['target']
+    X = df.drop('QUALITY', axis=1)  # Features
+    y = df['QUALITY']  # Target variable
 
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # Train model
-    model = RandomForestClassifier()
+    model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
 
     # Evaluate model
@@ -54,11 +56,17 @@ with mlflow.start_run() as run:
     # Log metrics to MLflow
     mlflow.log_metric('accuracy', accuracy)
 
-    # Log model using MLflow
+    # Prepare an input example and infer the model signature
+    input_example = X_test.iloc[:1]  # Taking the first row as an example input
+    signature = infer_signature(X_train, model.predict(X_train))
+
+    # Log model using MLflow with input example and signature
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path='model',
-        registered_model_name='RandomForestClassifierModel'  # Change the model name as needed
+        registered_model_name='RandomForestClassifierModel',  # Change the model name as needed
+        input_example=input_example,
+        signature=signature
     )
 
-print("Model logged and registered successfully in Azure ML.")
+print("Model logged and registered successfully in Azure ML with input example and signature.")

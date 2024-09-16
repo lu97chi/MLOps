@@ -18,7 +18,7 @@ experiment_name = os.getenv('EXPERIMENT_NAME', 'training-experiment')  # Default
 env_vars = {
     "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
     "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID"),
-    "AZURE_CLIENT_SECRET": os.getenv("AZURE_CLIENT_SECRET"),
+    "AZURE_CLIENT_SECRET": os.getenv("AZURECLIENTSECRET"),
     "AZURE_SUBSCRIPTION_ID": os.getenv("AZURE_SUBSCRIPTION_ID"),
     "AZURE_RESOURCE_GROUP": os.getenv("AZURE_RESOURCE_GROUP"),
     "AZURE_WORKSPACE_NAME": os.getenv("AZURE_WORKSPACE_NAME"),

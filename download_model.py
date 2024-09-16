@@ -16,12 +16,28 @@ ml_client = MLClient(
     workspace_name=os.getenv("AZURE_WORKSPACE_NAME")
 )
 
-# Retrieve the model by name or ID
-model_name = "RandomForestClassifierModel"  # Update with your actual model name
-model_version = "1"  # Update with your model version if necessary
-model = ml_client.models.get(name=model_name, version=model_version)
+# Retrieve the latest version of the model by name
+model_name = "RandomForestClassifierModel"  # Replace with your model name
 
-# Download the model locally
+# Fetch all versions of the model
+models = ml_client.models.list(name=model_name)
+
+# Sort models by version and get the latest one
+latest_model = max(models, key=lambda m: int(m.version))  # Assuming version is numeric
+
+if latest_model is None:
+    raise Exception(f"No models found with name: {model_name}")
+
+# Define the download path
 download_path = "models/"
-model.download(download_path, exist_ok=True)
-print(f"Model downloaded to {download_path}")
+
+# Download the latest model using ml_client
+ml_client.models.download(name=latest_model.name, version=latest_model.version, download_path=download_path)
+
+# Construct the model path
+model_path = os.path.join(download_path, "RandomForestClassifierModel.pkl")  # Adjust if the downloaded file has a specific name
+
+# Output the model path for GitHub Actions
+print(f"::set-output name=model_path::{model_path}")
+
+print(f"Latest model downloaded to {model_path} (version: {latest_model.version})")

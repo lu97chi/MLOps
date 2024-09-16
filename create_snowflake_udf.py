@@ -1,43 +1,46 @@
-# create_snowflake_udf.py
-
 import snowflake.connector
 import os
+from udf_creation import get_create_udf_sql  # Import the function
 
 # Connect to Snowflake
 conn = snowflake.connector.connect(
-    user=os.getenv("SNOWFLAKE_USER"),
-    password=os.getenv("SNOWFLAKE_PASSWORD"),
-    account=os.getenv("SNOWFLAKE_ACCOUNT")
+    user=os.getenv("SNOWFLAKEUSER"),
+    password=os.getenv("SNOWFLAKEPASSWORD"),
+    account=os.getenv("SNOWFLAKEACCOUNT"),
+    warehouse=os.getenv("SNOWFLAKEWAREHOUSE"),  # Set the warehouse
+    database=os.getenv("SNOWFLAKEDATABASE"),    # Set the database
+    schema=os.getenv("SNOWFLAKESCHEMA")         # Set the schema
 )
 
-# Create a UDF in Snowflake for model inference
+# Create a cursor object
 cursor = conn.cursor()
-cursor.execute("""
-CREATE OR REPLACE FUNCTION predict_quality(features ARRAY)
-RETURNS FLOAT
-LANGUAGE PYTHON
-RUNTIME_VERSION = '3.8'
-HANDLER = 'inference_udf'
-IMPORTS = ('@my_model_stage/RandomForestClassifierModel.pkl')
-PACKAGES = ('pandas', 'scikit-learn')
-AS $$
-import pickle
-import pandas as pd
-import numpy as np
 
-# Load the model from the Snowflake stage
-with open('/tmp/RandomForestClassifierModel.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Check if the model file exists in the specified stage
+try:
+    # List files in the stage
+    cursor.execute("LIST @MLOPSTEST.PUBLIC.MY_MODEL_STAGE;")
+    files = cursor.fetchall()
+    
+    # Check if the specific file is present
+    model_filename = 'model.pkl.gz'
+    file_exists = any(model_filename in file[0] for file in files)
+    
+    if not file_exists:
+        raise FileNotFoundError(f"The file '{model_filename}' does not exist in the stage '@MLOPSTEST.PUBLIC.MY_MODEL_STAGE'.")
+    
+    print(f"File '{model_filename}' found in the stage. Proceeding to create the UDF.")
 
-def inference_udf(features):
-    # Convert the input list to a DataFrame or appropriate format
-    input_df = pd.DataFrame([features], columns=['feature1', 'feature2', ...])  # Replace with actual feature names
+    # Get the SQL command from the function
+    create_udf_sql = get_create_udf_sql(model_filename)
     
-    # Perform inference
-    prediction = model.predict(input_df)
-    
-    # Return the prediction
-    return float(prediction[0])
-$$;
-""")
-print("UDF for inference created in Snowflake.")
+    # Execute the SQL command
+    cursor.execute(create_udf_sql)
+
+    print("UDF for inference created in Snowflake.")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+# Close the cursor and connection
+cursor.close()
+conn.close()

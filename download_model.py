@@ -4,7 +4,7 @@ import os
 
 for key, value in os.environ.items():
     print(f'{key}: {value}')
-    
+
 # Set up Azure ML credentials and MLClient
 credential = ClientSecretCredential(
     tenant_id=os.getenv("AZURE_TENANT_ID"),
@@ -39,8 +39,5 @@ ml_client.models.download(name=latest_model.name, version=latest_model.version, 
 
 # Construct the model path
 model_path = os.path.join(download_path, "RandomForestClassifierModel.pkl")  # Adjust if the downloaded file has a specific name
-
-# Output the model path for GitHub Actions
-print(f"::set-output name=model_path::{model_path}")
 
 print(f"Latest model downloaded to {model_path} (version: {latest_model.version})")
